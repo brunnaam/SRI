@@ -21,7 +21,9 @@ public class TokenCleaner {
 		}
 
 		str = str.replaceAll("[^a-z0-9çáéíóúàãõâêô-]", " ");
+		str = str.replaceAll("[ ]{2,}", " ");
 		
 		return(str);
 	}
+
 }
