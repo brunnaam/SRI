@@ -103,7 +103,7 @@ public class IndiceInvertido {
 	private static void writeOutputFile() {
 		FileWriter fw;
 		try {
-			fw = new FileWriter(new File("indiceInvertido.txt"));
+			fw = new FileWriter(new File("files/indiceInvertido.txt"));
 			BufferedWriter bw = new BufferedWriter(fw);
 			
 			//indice no formato:
@@ -237,10 +237,9 @@ public class IndiceInvertido {
 	}
 
 	public static void main(String[] args) {
-		fillDictionary("C:\\Users\\Brunna\\Downloads\\ptwiki-v2.trec");
+		fillDictionary("files/ptwiki-v2.trec");
 //		userInputQuery(); //Descomentar essa linha caso queira o promp para digitar uma busca
 		testQueries();
-		
 	}
 	
 }
