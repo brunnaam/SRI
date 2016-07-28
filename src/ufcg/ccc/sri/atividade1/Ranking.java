@@ -4,7 +4,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -76,18 +78,17 @@ public class Ranking {
 			addToTable(doc.split(" "), String.valueOf(i));				
 		}
 		addIdfToHashtable();
-		writeOutputFile();
-		System.out.println(dictionary);
+//		writeOutputFile();
+//		System.out.println(dictionary);
+		System.out.println("Dicionário criado com sucesso!");
 	}
 	
 	/**
-	 * Adiciona ao dicionário as palavras e o número do document
+	 * Adiciona ao dicionário as palavras e o número do document, calculando seu tf
 	 * @param words lista de palavras do paragrafo referente à um documento
 	 * @param docNumber Número do documento que contém as palavras
 	 */
 	private static void addToTable(String[] words, String docNumber) {
-		System.out.println("Adicionando a hashtable");
-		
 		for (String word : words) {
 			//Adiciona uma nova palavra ao dicionario, juntamente com o numero do documento
 			if (hashTable.get(word) == null) {
@@ -96,7 +97,6 @@ public class Ranking {
 				//Calcula o tf de cada termo
 				int tf = tf(words, word);
 				docs.put(docNumber, tf);
-				
 				hashTable.put(word, docs);
 				
 			} else {
@@ -110,6 +110,12 @@ public class Ranking {
 		}
 	}
 	
+	/**
+	 * Calcula o tf do termo passado como parâmetro
+	 * @param doc strings do documento
+	 * @param term termo
+	 * @return tf do termo
+	 */
 	private static int tf(String[] doc, String term) {
 		int count = 0;
 		for (String word : doc) {
@@ -120,21 +126,20 @@ public class Ranking {
 		return count;
 	}
 	
-	private static double idf(String term) {
-		int numberOfDocsWithTerm = 0;
-		double idf = 0.0;
-		for (int i = 1; i <= allDocuments.size(); i++) {
-			String doc = allDocuments.get(i);
-			if (doc.contains(term)) {
-				numberOfDocsWithTerm++;
-			}
-		}
-		idf = (1/numberOfDocsWithTerm);
-		return idf;
+	/**
+	 * Calcula idf do termo passado como paramêtro
+	 * @param term termo
+	 * @return idf
+	 */
+	private static Double idf(String term) {
+		return ((double)1 / hashTable.get(term).size());
 	}
 	
+	/**
+	 * Adiciona o idf de cada termo ao dicionario
+	 * @return
+	 */
 	private static Hashtable<Hashtable<String, Double>, Hashtable<String, Integer>> addIdfToHashtable() {
-		System.out.println(hashTable.size());
 		Hashtable<Hashtable<String, Double>, Hashtable<String, Integer>> dict = new Hashtable<>();
 		Set<String> keys = hashTable.keySet();
 		for (String term : keys) {
@@ -157,17 +162,11 @@ public class Ranking {
 			BufferedWriter bw = new BufferedWriter(fw);
 			
 			//indice no formato:
-			//    chave: [<lista_de_documentos>]
-//			for (String s : hashTable.keySet()) {
-//				bw.write(s + ": " + hashTable.get(s).toString());
-//				bw.newLine();
-//			}
+			// {termo=idf}={documento=tf, documento2=tf2, ...}
 			Set<Hashtable<String, Double>> keys = dictionary.keySet();
 			for (Hashtable<String, Double> key : keys) {
-				for (String term : key.keySet()) {
-					bw.write(term + ":" + key.get(term) + " <" + dictionary.get(key) + ">");
-					bw.newLine();
-				}
+				bw.write(key + "=" + dictionary.get(key));
+				bw.newLine();
 			}
 			bw.close();
 		} catch (IOException e) {
@@ -178,17 +177,74 @@ public class Ranking {
 	/**
 	 * Imprime na tela os documentos nos quais a busca desejada aparece
 	 * @param search
+	 * @return 
 	 */
-	public static void search(String search) {
-		String[] queryTerms = search.split(" ");
+	public static Hashtable<String,Double> search(String search) {
+		System.out.println("Consulta: " + search);
+		Hashtable<String, Double> scores = new Hashtable<>();
+		String[] queryTerms = search.toLowerCase().split(" ");
+		List<String> documents = intersect(queryTerms);
+		
+		for (String term : queryTerms) {
+			 Hashtable<String, Integer> docsOfTerm = hashTable.get(term);
+			 for (String doc : docsOfTerm.keySet()) {
+				 if (documents.contains(doc)) {
+					 //calcula score
+					 Double score = bm25Rank(15, docsOfTerm.get(doc), idf(term));
+					 if (scores.containsKey(doc)) {
+						 Double pastScore = scores.get(doc);
+						 scores.put(doc, pastScore + score);
+					 } else {
+						 scores.put(doc, score);
+					 }
+				 }
+			 }
+		}
+		return scores;
+		//cada doc vai ter um score
+		//fazer um and pra descobrir quais os docs possuem todas as palavras da pesquisa
+		//com esses docs, pega o dictionary pelo termo da consulta, e pra cada doc na lista acima, calcula o score
 	}
 	
+	private static List<String> intersect(String[] p1) {
+		List<String> aux = new ArrayList<String>();
+		List<String> answer = new ArrayList<String>();
+		
+		Hashtable<String, Integer> postings = hashTable.get(p1[0]);
+		answer.addAll(postings.keySet());
+		
+		for (int i = 1; i < p1.length; i++) {
+			Set<String> set = hashTable.get(p1[i]).keySet();
+			for (String word : set) {
+				if (answer.contains(word)) {
+					aux.add(word);
+				}
+			}
+			answer = aux;
+			aux = new ArrayList<>();
+		}		
+		return answer;
+	}
+	
+	private static Double bm25Rank(Integer k, Integer tf, Double idf) {
+		return (((k + 1) * tf) / tf + k) * (Math.log(hashTable.size()+1) * idf) ;
+	}
+	
+	private static List<String> sortRank(Hashtable<String,Double> documents, int topResults) {
+		return null;
+	}
 	
 	/**
 	 * Consultas de teste do ranking
 	 */
 	public static void testQueries() {
-		
+		System.out.println("---------------------------");
+		System.out.println(search("grupo raça negra"));
+		System.out.println("---------------------------");
+		System.out.println(search("primeira guerra mundial"));
+		System.out.println("---------------------------");
+		System.out.println(search("minha terra tem palmeiras onde canta o sabiá"));
+		System.out.println("---------------------------");
 	}
 	
 	/**
