@@ -84,9 +84,9 @@ public class IndiceTFIDF {
 			addToTable(doc.split(" "), String.valueOf(i));				
 		}
 		//Criar indice com o idf de todos os termos
-		addIdfToHashtable();
+		addIdfToIndice();
 		//escreve arquivo com o indice TFIDF
-		writeOutputFile();
+//		writeOutputFile();
 		System.out.println("Indice criado com sucesso!");
 	}
 	
@@ -147,7 +147,7 @@ public class IndiceTFIDF {
 	 * Adiciona o idf de cada termo ao indice TFIDF
 	 * @return
 	 */
-	private static Hashtable<Hashtable<String, Double>, Hashtable<String, Integer>> addIdfToHashtable() {
+	private static Hashtable<Hashtable<String, Double>, Hashtable<String, Integer>> addIdfToIndice() {
 		Hashtable<Hashtable<String, Double>, Hashtable<String, Integer>> dict = new Hashtable<>();
 		Set<String> keys = hashTable.keySet();
 		//Para cada termo, calcula seu idf e o adiciona ao indiceTFIDF
