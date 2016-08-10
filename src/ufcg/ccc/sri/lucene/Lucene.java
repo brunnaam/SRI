@@ -19,6 +19,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 
@@ -42,6 +43,7 @@ public class Lucene {
 	public Lucene() throws IOException{
 		Directory dir = new RAMDirectory();
 		IndexWriterConfig config = new IndexWriterConfig(new BrazilianAnalyzer());
+		config.setSimilarity(new BM25Similarity());
 		index = new IndexWriter(dir, config);
 	}
 	
@@ -121,12 +123,13 @@ public class Lucene {
 	public void luceneSearch(String busca, int n) throws IOException, ParseException{
 		QueryParser qp = new QueryParser("texto", new BrazilianAnalyzer());
 		IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(index)); 
+		searcher.setSimilarity(new BM25Similarity());
 		Query query = qp.parse(busca);
 		TopDocs topDocs = searcher.search(query, n);
 		ScoreDoc[] hits = topDocs.scoreDocs;
 		for (int i = 0; i < hits.length; i++) {
 			Document doc = searcher.doc(hits[i].doc);
-			System.out.println(doc.get("nomearquivo"));
+			System.out.println((i+1) + " - " +doc.get("nomearquivo"));
 		}
 	}	
 	
