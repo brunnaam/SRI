@@ -1,4 +1,4 @@
-package ufcg.ccc.sri.atividade1;
+package ufcg.ccc.sri.util;
 
 public class TokenCleaner {
 	

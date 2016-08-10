@@ -1,4 +1,4 @@
-package ufcg.ccc.sri.atividade1;
+package ufcg.ccc.sri.ranking;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -21,6 +21,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import ufcg.ccc.sri.util.TokenCleaner;
 
 public class IndiceTFIDF {
 	
