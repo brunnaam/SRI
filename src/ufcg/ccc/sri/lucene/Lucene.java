@@ -38,7 +38,6 @@ public class Lucene {
 
 	private IndexWriter index;
 	private Hashtable<Integer, String> allDocuments = new Hashtable<>();
-	private List<Integer> selectedDocs; 
 	
 	public Lucene() throws IOException{
 		Directory dir = new RAMDirectory();
@@ -46,25 +45,8 @@ public class Lucene {
 		config.setSimilarity(new BM25Similarity());
 		index = new IndexWriter(dir, config);
 	}
-	
-	private void selectedDocs(Integer[] list) {
-		selectedDocs = new ArrayList<Integer>();
-		for (Integer i : list) {
-			selectedDocs.add(i);
-		}
-	}
 
 	public void readDocs(String filePath) throws IOException{
-//		File arquivos[];
-//		File diretorio = new File(filePath);
-//		arquivos = diretorio.listFiles();
-//		for(int i = 0; i < arquivos.length; i++){
-//			String texto = new String(Files.readAllBytes(arquivos[i].toPath()));
-//			Document doc = new Document();
-//			doc.add(new StringField("nomearq", arquivos[i].getName(), Field.Store.YES));
-//			doc.add(new TextField("texto", texto, Field.Store.YES));
-//			index.addDocument(doc);
-//		}
 		readDocsAux(filePath);
 		for (Integer docNumber : allDocuments.keySet()) {
 			String text = allDocuments.get(docNumber);
@@ -76,10 +58,7 @@ public class Lucene {
 	}
 	
 	private void readDocsAux(String filePath) {
-		
-		Integer[] list = {3,8,45,67,69,87,89,97,99,100,101,117,118,130,132,180,205,249,261,271,293,294,295,326,345,359,403,411,439,451,453,471,516,576,577,586,588,606,645,649,650,653,659,660,665,671,844,853,862,881};
-		selectedDocs(list);
-		
+				
 		try {
 			//Lendo XML
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -88,7 +67,7 @@ public class Lucene {
 
 			file.getDocumentElement().normalize();
 
-			//Pega todos os nós "DOC"
+			//Pega todos os nï¿½s "DOC"
 			NodeList allDocs = file.getElementsByTagName("DOC");
 			
 			//Itera sobre a lista de DOCS
@@ -103,16 +82,14 @@ public class Lucene {
 					String stringDoc = eElement.getElementsByTagName("DOCNO").item(0).getTextContent();
 					Integer docNumber = Integer.parseInt(stringDoc);
 					
-					if (selectedDocs.contains(docNumber)) {
-						//Pega o paragrafo do doc pela tag "P"
-						String docText = eElement.getElementsByTagName("P").item(0).getTextContent();
-						
-						//Limpa o texto retirando citacoes, caracteres não alfa-numericos e espacos desnecessários,
-						//colocando todo o texto em caixa baixa
-						String cleanText = TokenCleaner.clean(docText);
-						
-						allDocuments.put(docNumber, cleanText);
-					}
+					//Pega o paragrafo do doc pela tag "P"
+					String docText = eElement.getElementsByTagName("P").item(0).getTextContent();
+					
+					//Limpa o texto retirando citacoes, caracteres nï¿½o alfa-numericos e espacos desnecessï¿½rios,
+					//colocando todo o texto em caixa baixa
+					String cleanText = TokenCleaner.clean(docText);
+					
+					allDocuments.put(docNumber, cleanText);
 				}
 			}
 		} catch (Exception e) {

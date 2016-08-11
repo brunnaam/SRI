@@ -27,8 +27,11 @@ public class Main {
 	}
 	
 	public static void testQuery() throws IOException, ParseException {
-		System.out.println("Query: Escritor ingl�s \n ---- Top 10 results: ---- ");
-		l.luceneSearch("Escritor ingl�s", 10);
+		System.out.println("Query: Escritor inglês \n ---- Top 10 results: ---- ");
+		l.luceneSearch("escritor inglês", 10);
+//		System.out.println("\nQuery: animal em extinção \n ---- Top 10 results: ---- ");
+//		l.luceneSearch("animal em extinção", 10);
+		
 	}
 	
 	@SuppressWarnings("resource")
