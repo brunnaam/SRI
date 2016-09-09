@@ -36,13 +36,10 @@ term.doc.matrix <- as.matrix(term.doc.matrix.stm)
 tfidf.matrix = weightTfIdf(term.doc.matrix.stm)
 colnames(tfidf.matrix) <- colnames(term.doc.matrix)
 
-train <- tfidf.matrix[1:5000,]
-test <- tfidf.matrix[5001,]
+train <- tfidf.matrix[1:646,]
+test <- tfidf.matrix[647,]
 
-row.names(train_2)
-row.names(test_2)
-
-distance <- Distance_for_KNN_test(test_2, train_2)
+distance <- Distance_for_KNN_test(test, train)
 
 top5 <- k.nearest.neighbors(1,distance_matrix = distance, k=5)
 top5
