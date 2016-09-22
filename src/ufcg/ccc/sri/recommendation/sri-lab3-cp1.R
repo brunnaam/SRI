@@ -1,6 +1,6 @@
 trim <- function (x) gsub(" ", "", x)
 
-movies <- readline(prompt="Digite o número dos filmes que você gosta separados por vírgula (Ex: 145,156,631,321): ")
+movies <- readline(prompt="Digite o nÃºmero dos filmes que vocÃª gosta separados por vÃ­rgula (Ex: 145,156,631,321): ")
 movies <- trim(movies)
 movies <- as.numeric(unlist(strsplit(movies, ",")))
 
@@ -29,7 +29,7 @@ my.corpus <- tm_map(my.corpus, stemDocument)
 my.corpus <- tm_map(my.corpus, removeNumbers)
 my.corpus <- tm_map(my.corpus, stripWhitespace)
 
-term.doc.matrix.stm <- TermDocumentMatrix(my.corpus)
+term.doc.matrix.stm <- DocumentTermMatrix(my.corpus)
 inspect(term.doc.matrix.stm)
 
 term.doc.matrix <- as.matrix(term.doc.matrix.stm)
@@ -39,7 +39,6 @@ colnames(tfidf.matrix) <- colnames(term.doc.matrix)
 
 userProfile <- tfidf.matrix[movies, ]
 train <- tfidf.matrix[-movies, ]
-train <- train[1:length(doc.list),]
 
 distance <- Distance_for_KNN_test(userProfile, train)
 
